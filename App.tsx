@@ -15,7 +15,7 @@ import { useSound } from './src/hooks/useSound';
 
 import { PayMongoCheckoutModal } from './src/components/modals/PayMongoCheckoutModal';
 import { CategoryType, Product, User, CartItem, Visit, Order, Customer, Lead, LeadReason } from './types';
-import { supabase } from './src/supabaseClient';
+import { supabase, signInWithGoogle } from './src/supabaseClient';
 
 const App: React.FC = () => {
   // --- STATE ---
@@ -250,12 +250,7 @@ const App: React.FC = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
+      const { error } = await signInWithGoogle();
       if (error) throw error;
     } catch (e) {
       console.error('Google Auth Error:', e);

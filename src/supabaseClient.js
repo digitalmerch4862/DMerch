@@ -6,3 +6,12 @@ const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdX
 // ---------------------------------------------------------
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
+
+export const signInWithGoogle = () => {
+  return supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin,
+    },
+  });
+};

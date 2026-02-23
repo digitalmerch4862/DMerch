@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, ChevronRight } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
+import { supabase, signInWithGoogle } from '../../supabaseClient';
 import { useSound } from '../../hooks/useSound';
 
 const LOGO_URL = "/android-chrome-192x192.png";
@@ -54,12 +54,12 @@ export const SignUp: React.FC<SignUpProps> = ({ isOpen, onClose, onToggleMode, o
 
     const handleGoogleLogin = async () => {
         play('click');
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin
-            }
-        });
+        if (onGoogleAuth) {
+            await onGoogleAuth();
+            return;
+        }
+
+        const { error } = await signInWithGoogle();
         if (error) {
             setError(error.message);
             play('error');
