@@ -1,0 +1,85 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e5]:
+    - generic [ref=e6]:
+      - img "Store Logo" [ref=e9] [cursor=pointer]
+      - generic [ref=e10]:
+        - heading "DMerch" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Digital Store
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: Discover
+        - generic [ref=e16]:
+          - button "Best Seller" [ref=e17]:
+            - img [ref=e18]
+            - generic [ref=e21]: Best Seller
+          - button "All Products" [ref=e22]:
+            - img [ref=e23]
+            - generic [ref=e28]: All Products
+          - button "My Purchases" [ref=e29]:
+            - img [ref=e30]
+            - generic [ref=e34]: My Purchases
+      - generic [ref=e35]:
+        - generic [ref=e36]: Software Types
+        - generic [ref=e37]:
+          - button "Native Type" [ref=e38]:
+            - generic [ref=e40]: Native Type
+          - button "Subscription Type" [ref=e41]:
+            - generic [ref=e43]: Subscription Type
+          - button "Course Type" [ref=e44]:
+            - generic [ref=e46]: Course Type
+      - generic [ref=e47]:
+        - generic [ref=e48]: Support
+        - button "Contact Admin" [ref=e50]:
+          - img [ref=e51]
+          - generic [ref=e53]: Contact Admin
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e57]: T
+        - paragraph [ref=e59]: TestBuyer
+      - button "Sign Out" [ref=e60]:
+        - img [ref=e61]
+        - generic [ref=e64]: Sign Out
+  - main [ref=e65]:
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - img [ref=e70]
+        - generic [ref=e74]:
+          - heading "Order Integrity" [level=2] [ref=e75]
+          - paragraph [ref=e76]: Verify your assets before final settlement
+      - generic [ref=e77]:
+        - generic [ref=e79]:
+          - img "8500 Premium Lightroom Presets-Windows(OS)" [ref=e81]
+          - generic [ref=e82]:
+            - heading "8500 Premium Lightroom Presets-Windows(OS)" [level=3] [ref=e83]
+            - paragraph [ref=e84]: Native Type
+          - generic [ref=e85]:
+            - paragraph [ref=e86]: ₱150
+            - button [ref=e87]:
+              - img [ref=e88]
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - paragraph [ref=e94]: Settlement Summary
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - generic [ref=e97]: Subtotal
+                - generic [ref=e98]: ₱150
+              - generic [ref=e99]:
+                - generic [ref=e100]: Processing Fee
+                - generic [ref=e101]: Zero Fee
+              - generic [ref=e103]:
+                - generic [ref=e104]: Total Amount
+                - generic [ref=e105]: ₱150
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - img [ref=e108]
+              - generic [ref=e111]: Secure PayMongo Gateway
+            - button "Initialize Payment" [ref=e112]:
+              - generic [ref=e113]: Initialize Payment
+              - img [ref=e114]
+            - paragraph [ref=e116]: By completing the settlement, you agree to our digital asset procurement terms and licensing agreement.
+  - button [ref=e117]:
+    - img [ref=e118]
+```

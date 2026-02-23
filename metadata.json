@@ -1,0 +1,8 @@
+{
+  "name": "DMerch",
+  "description": "A premium digital marketplace with interactive UI, admin controls, and categorized digital products.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
