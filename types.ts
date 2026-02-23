@@ -19,18 +19,23 @@ export interface User {
   username: string;
   isAdmin: boolean;
   isLoggedIn: boolean;
+  fullName?: string;
+  avatarUrl?: string;
 }
 
 export interface Visit {
   id: string;
+  user_id: string;
   created_at: string;
   username?: string;
   session_id: string;
   page: string;
+  ip_address?: string;
 }
 
 export interface Order {
   id: string;
+  user_id: string;
   created_at: string;
   customer_username: string;
   amount: number;
@@ -54,6 +59,7 @@ export type LeadReason = 'general' | 'support' | 'billing' | 'partnership' | 'fe
 
 export interface Lead {
   id: string;
+  user_id: string;
   created_at: string;
   username?: string;
   email?: string;

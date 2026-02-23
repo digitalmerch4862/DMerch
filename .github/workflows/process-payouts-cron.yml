@@ -1,0 +1,32 @@
+name: Process Seller Payouts
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  trigger-payout-processor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Supabase process-payouts function
+        env:
+          PAYOUTS_CRON_TOKEN: ${{ secrets.PAYOUTS_CRON_TOKEN }}
+          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+        run: |
+          if [ -z "$PAYOUTS_CRON_TOKEN" ]; then
+            echo "Missing PAYOUTS_CRON_TOKEN secret"
+            exit 1
+          fi
+
+          if [ -z "$SUPABASE_PROJECT_URL" ]; then
+            echo "Missing SUPABASE_PROJECT_URL secret"
+            exit 1
+          fi
+
+          response=$(curl --silent --show-error --fail-with-body \
+            --request POST "$SUPABASE_PROJECT_URL/functions/v1/process-payouts" \
+            --header "Authorization: Bearer $PAYOUTS_CRON_TOKEN" \
+            --header "Content-Type: application/json")
+
+          echo "process-payouts response: $response"

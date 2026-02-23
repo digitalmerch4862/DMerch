@@ -78,6 +78,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 <span className="font-bold text-sm">My Purchases</span>
                             </button>
                         )}
+                        {user.isLoggedIn && (
+                            <button
+                                onClick={() => { setView('settings'); play('click'); }}
+                                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all ${view === 'settings' ? 'bg-blue-600 text-white shadow-2xl shadow-blue-600/30' : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'}`}
+                            >
+                                <Settings size={20} />
+                                <span className="font-bold text-sm">Profile Settings</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -155,11 +164,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {user.isLoggedIn ? (
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-lg shadow-blue-500/20">
-                                {user.username[0].toUpperCase()}
-                            </div>
+                            {user.avatarUrl ? (
+                                <img src={user.avatarUrl} alt="Profile" className="w-10 h-10 rounded-xl object-cover border border-white/10" />
+                            ) : (
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-white shadow-lg shadow-blue-500/20">
+                                    {(user.fullName || user.username)[0]?.toUpperCase()}
+                                </div>
+                            )}
                             <div className="flex-grow min-w-0">
-                                <p className="text-sm font-bold text-white truncate">{user.username}</p>
+                                <p className="text-sm font-bold text-white truncate">{user.fullName || user.username}</p>
+                                <p className="text-[10px] text-slate-500 font-medium truncate">@{user.username}</p>
                                 {user.isAdmin && <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Administrator</p>}
                             </div>
                         </div>
