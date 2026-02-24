@@ -64,6 +64,15 @@ body {
   animation: pulse-slow 4s infinite ease-in-out;
 }
 
+.dm-select {
+  color-scheme: dark;
+}
+
+.dm-select option {
+  background: #0a0f1d;
+  color: #e2e8f0;
+}
+
 /* Running Border Effect */
 .running-border-container {
   position: relative;

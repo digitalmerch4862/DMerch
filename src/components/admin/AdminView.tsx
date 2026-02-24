@@ -90,13 +90,13 @@ export const AdminView: React.FC<AdminViewProps> = ({
                             onClick={() => { setMode('single'); play('click'); }}
                             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'single' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:text-white'}`}
                         >
-                            Single Asset
+                            Single
                         </button>
                         <button
                             onClick={() => { setMode('batch'); play('click'); }}
                             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'batch' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:text-white'}`}
                         >
-                            Batch Protocol
+                            Group
                         </button>
                     </div>
                 </div>
@@ -131,7 +131,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                                         <select
                                             value={singleProduct.category}
                                             onChange={(e) => setSingleProduct(prev => ({ ...prev, category: e.target.value as CategoryType }))}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all cursor-pointer appearance-none"
+                                            className="dm-select w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all cursor-pointer appearance-none"
                                         >
                                             {Object.values(CategoryType).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                         </select>

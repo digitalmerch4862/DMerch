@@ -136,7 +136,7 @@ export const ProfileSettingsView: React.FC<ProfileSettingsViewProps> = ({
             <select
               value={form.preferredCurrency}
               onChange={(e) => setForm(prev => ({ ...prev, preferredCurrency: e.target.value as 'PHP' | 'USD' }))}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all cursor-pointer"
+              className="dm-select w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all cursor-pointer"
             >
               <option value="PHP">PHP</option>
               <option value="USD">USD</option>

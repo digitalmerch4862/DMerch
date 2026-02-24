@@ -14,6 +14,29 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
     const [previewItems, setPreviewItems] = useState<any[]>([]);
     const { play } = useSound();
 
+    const normalizeCategory = (value: string): CategoryType => {
+        const normalized = value.trim().toLowerCase();
+        if (normalized.includes('subscription')) return CategoryType.SUBSCRIPTION;
+        if (normalized.includes('course')) return CategoryType.COURSE;
+        return CategoryType.NATIVE;
+    };
+
+    const parsePrice = (value: string): number => {
+        const cleaned = value.replace(/[^\d.,-]/g, '').replace(/,/g, '');
+        const amount = parseFloat(cleaned);
+        return Number.isFinite(amount) ? amount : 0;
+    };
+
+    const isHeaderRow = (parts: string[]) => {
+        const joined = parts.join(' ').toLowerCase();
+        return (
+            joined.includes('product name') ||
+            joined.includes('product link') ||
+            joined.includes('software type') ||
+            joined.includes('amount')
+        );
+    };
+
     const parseLines = () => {
         if (!text.trim()) return;
         const lines = text.split('\n').filter(l => l.trim() !== '');
@@ -22,20 +45,28 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
         for (const line of lines) {
             let name = 'New Item';
             let fileUrl = '';
-            let category: string = CategoryType.NATIVE;
+            let category: CategoryType = CategoryType.NATIVE;
             let price = 0;
 
             // Robust Parsing Logic
-            let parts = line.split('\t');
+            const parts = line.split('\t').map(part => part.trim());
+
+            if (parts.length >= 2 && isHeaderRow(parts)) {
+                continue;
+            }
+
             if (parts.length >= 3) {
-                name = parts[0]?.trim();
-                fileUrl = parts[1]?.trim();
-                const potentialPrice = parseFloat(parts[2]?.trim());
-                if (!isNaN(potentialPrice) && parts.length === 3) {
+                name = parts[0] || 'New Item';
+                fileUrl = parts[1] || '';
+
+                const thirdColumn = parts[2] || '';
+                const potentialPrice = parsePrice(thirdColumn);
+
+                if (potentialPrice > 0 && parts.length === 3) {
                     price = potentialPrice;
                 } else {
-                    category = parts[2]?.trim() || CategoryType.NATIVE;
-                    price = parseFloat(parts[3]?.trim()) || 0;
+                    category = normalizeCategory(thirdColumn || CategoryType.NATIVE);
+                    price = parsePrice(parts[3] || '0');
                 }
             } else {
                 const urlMatch = line.match(/(https?:\/\/[^\s,]+)/);
@@ -45,18 +76,22 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
                     fileUrl = urlMatch[0];
                     const priceMatch = remainder.match(/(\d+(\.\d+)?)$/);
                     if (priceMatch) {
-                        price = parseFloat(priceMatch[0]);
+                        price = parsePrice(priceMatch[0]);
                         const possibleCategory = remainder.substring(0, remainder.lastIndexOf(priceMatch[0])).trim();
-                        if (possibleCategory) category = possibleCategory;
+                        if (possibleCategory) category = normalizeCategory(possibleCategory);
                     } else {
                         const firstNum = remainder.match(/(\d+(\.\d+)?)/);
-                        price = firstNum ? parseFloat(firstNum[0]) : 0;
+                        price = firstNum ? parsePrice(firstNum[0]) : 0;
                     }
                 } else {
                     const commaParts = line.split(',');
                     name = commaParts[0]?.trim();
-                    price = parseFloat(commaParts[1]?.trim()) || 0;
+                    price = parsePrice(commaParts[1] || '0');
                 }
+            }
+
+            if (!name || !fileUrl) {
+                continue;
             }
 
             const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(name + " professional tech product product UI")}`;
@@ -94,7 +129,7 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
                 <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="Paste items here (Name [TAB] URL [TAB] Category [TAB] Price)..."
+                    placeholder="Paste group rows from sheet (Product Name [TAB] Product Link [TAB] Software Type [TAB] Amount)..."
                     className="w-full h-48 bg-white/5 border border-white/10 rounded-3xl p-6 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all custom-scrollbar placeholder:text-slate-700"
                 />
                 {text && previewItems.length === 0 && (

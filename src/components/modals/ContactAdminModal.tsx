@@ -48,7 +48,7 @@ export const ContactAdminModal: React.FC<ContactAdminModalProps> = ({ isOpen, on
                         <select
                             value={reason}
                             onChange={(e) => setReason(e.target.value as LeadReason)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                            className="dm-select w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
                         >
                             <option value="general">General Inquiry</option>
                             <option value="support">Technical Support</option>
