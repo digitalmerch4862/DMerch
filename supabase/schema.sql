@@ -139,7 +139,13 @@ using (
   )
 )
 with check (
-  id = auth.uid()
+  (
+    id = auth.uid()
+    and role = (
+      select p.role from public.profiles p
+      where p.id = auth.uid()
+    )
+  )
   or exists (
     select 1 from public.profiles p
     where p.id = auth.uid() and p.role = 'admin'
