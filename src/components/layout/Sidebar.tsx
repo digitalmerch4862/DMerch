@@ -12,6 +12,7 @@ interface SidebarProps {
     activeCategory: string;
     setActiveCategory: (cat: any) => void;
     user: User;
+    isLoggingOut?: boolean;
     onLogout: () => void;
     onLogin: () => void;
     onOpenContact?: () => void;
@@ -25,6 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     activeCategory,
     setActiveCategory,
     user,
+    isLoggingOut = false,
     onLogout,
     onLogin,
     onOpenContact,
@@ -178,11 +180,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <button
-                            onClick={() => { play('click'); onLogout(); }}
-                            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all font-bold text-sm"
+                            onClick={() => { if (!isLoggingOut) { play('click'); onLogout(); } }}
+                            disabled={isLoggingOut}
+                            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-slate-500 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             <LogOut size={18} />
-                            <span>Sign Out</span>
+                            <span>{isLoggingOut ? 'Signing Out...' : 'Sign Out'}</span>
                         </button>
                     </div>
                 ) : (

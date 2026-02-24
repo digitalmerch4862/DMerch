@@ -56,6 +56,7 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [salesHistory, setSalesHistory] = useState<any[]>([]);
@@ -296,10 +297,27 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser({ username: '', isAdmin: false, isLoggedIn: false });
-    setView('store');
-    play('click');
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (e) {
+      console.error('Logout Error:', e);
+      play('error');
+    } finally {
+      setAuthUserId(null);
+      setUser({ username: '', isAdmin: false, isLoggedIn: false });
+      setSalesHistory([]);
+      setCart([]);
+      setIsAuthOpen(false);
+      setIsContactOpen(false);
+      setIsPayMongoOpen(false);
+      setView('store');
+      play('click');
+      setIsLoggingOut(false);
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -595,6 +613,7 @@ const App: React.FC = () => {
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
           user={user}
+          isLoggingOut={isLoggingOut}
           onLogout={handleLogout}
           onLogin={() => setIsAuthOpen(true)}
           currency={currency}
