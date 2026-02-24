@@ -4,7 +4,7 @@ import { Plus, PackagePlus, Eye, EyeOff, LayoutGrid, Sparkles, Loader2, Database
 import { CategoryType, Product } from '../../../types';
 import { useSound } from '../../hooks/useSound';
 import { BatchInjection } from './BatchInjection';
-import { GoogleGenAI } from "@google/genai";
+import { generateWikiFirstDescription } from '../../utils/wikiAi';
 
 interface AdminViewProps {
     products: Product[];
@@ -39,16 +39,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 setIsGenerating(true);
                 try {
                     const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
-                    if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-                        setIsGenerating(false);
-                        return;
+                    const generated = await generateWikiFirstDescription({
+                        name: singleProduct.name,
+                        category: singleProduct.category,
+                        apiKey
+                    });
+                    if (generated.description) {
+                        setSingleProduct(prev => ({ ...prev, description: generated.description }));
                     }
-                    const ai = new GoogleGenAI(apiKey);
-                    const model = (ai as any).getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const result = await model.generateContent(`Write a short, professional marketplace description (max 15 words) for "${singleProduct.name}" in "${singleProduct.category}".`);
-                    const response = await result.response;
-                    const text = response.text();
-                    if (text) setSingleProduct(prev => ({ ...prev, description: text.trim() }));
                 } catch (error) { console.error(error); } finally { setIsGenerating(false); }
             }
         };

@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { Upload, X, Check, Loader2, Sparkles, FileText, ListFilter } from 'lucide-react';
-import { CategoryType, Product } from '../../../types';
+import { Upload, X, Loader2, Sparkles, ListFilter } from 'lucide-react';
+import { CategoryType } from '../../../types';
 import { useSound } from '../../hooks/useSound';
+import { generateWikiFirstDescription } from '../../utils/wikiAi';
 
 interface BatchInjectionProps {
     onDeploy: (products: any[]) => Promise<void>;
@@ -12,6 +13,7 @@ interface BatchInjectionProps {
 export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProcessing }) => {
     const [text, setText] = useState('');
     const [previewItems, setPreviewItems] = useState<any[]>([]);
+    const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
     const { play } = useSound();
 
     const normalizeCategory = (value: string): CategoryType => {
@@ -37,7 +39,7 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
         );
     };
 
-    const parseLines = () => {
+    const parseLines = async () => {
         if (!text.trim()) return;
         const lines = text.split('\n').filter(l => l.trim() !== '');
         const items = [];
@@ -100,14 +102,44 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
                 name,
                 price,
                 category_name: category,
-                description: 'New digital item added via batch upload.',
+                description: '',
+                description_source: 'fallback' as 'wikipedia' | 'fallback',
                 image_url: imageUrl,
                 file_url: fileUrl,
                 id: Math.random().toString(36).substr(2, 9) // temporary ID for preview
             });
         }
-        setPreviewItems(items);
-        play('success');
+
+        if (items.length === 0) {
+            setPreviewItems([]);
+            return;
+        }
+
+        setIsGeneratingPreview(true);
+        try {
+            const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+            const enrichedItems = [];
+
+            for (const item of items) {
+                const generated = await generateWikiFirstDescription({
+                    name: item.name,
+                    category: item.category_name,
+                    apiKey
+                });
+
+                enrichedItems.push({
+                    ...item,
+                    description: generated.description,
+                    description_source: generated.source,
+                    wiki_url: generated.wiki?.url || null
+                });
+            }
+
+            setPreviewItems(enrichedItems);
+            play('success');
+        } finally {
+            setIsGeneratingPreview(false);
+        }
     };
 
     const handleDeploy = async () => {
@@ -135,10 +167,11 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
                 {text && previewItems.length === 0 && (
                     <button
                         onClick={parseLines}
+                        disabled={isGeneratingPreview}
                         className="absolute bottom-6 right-6 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
                     >
-                        <Sparkles size={16} />
-                        <span>Generate Preview</span>
+                        {isGeneratingPreview ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        <span>{isGeneratingPreview ? 'Generating with Wiki + AI...' : 'Generate Preview'}</span>
                     </button>
                 )}
             </div>
@@ -191,6 +224,11 @@ export const BatchInjection: React.FC<BatchInjectionProps> = ({ onDeploy, isProc
                                                 <div>
                                                     <p className="text-sm font-bold text-white leading-none mb-1">{item.name}</p>
                                                     <p className="text-[10px] text-slate-500 truncate max-w-[200px]">{item.file_url}</p>
+                                                    <div className="mt-1 flex items-center gap-2">
+                                                        <span className={`text-[9px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${item.description_source === 'wikipedia' ? 'text-emerald-300 bg-emerald-500/15' : 'text-amber-300 bg-amber-500/15'}`}>
+                                                            {item.description_source === 'wikipedia' ? 'Wikipedia' : 'AI Fallback'}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
