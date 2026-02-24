@@ -301,12 +301,14 @@ const App: React.FC = () => {
 
     setIsLoggingOut(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) {
+        console.error('Logout Error:', error);
+      }
     } catch (e) {
       console.error('Logout Error:', e);
-      play('error');
     } finally {
+      localStorage.removeItem('digital_merch_user');
       setAuthUserId(null);
       setUser({ username: '', isAdmin: false, isLoggedIn: false });
       setSalesHistory([]);
