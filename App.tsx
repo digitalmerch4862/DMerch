@@ -20,6 +20,20 @@ import { supabase, signInWithGoogle } from './src/supabaseClient';
 
 const ADMIN_EMAIL_ALLOWLIST = new Set(['digitalmerch4862@gmail.com']);
 
+const withTimeout = async <T,>(promise: Promise<T>, ms: number, message: string): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), ms);
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
 const App: React.FC = () => {
   // --- STATE ---
   const [user, setUser] = useState<User>(() => {
@@ -563,28 +577,33 @@ const App: React.FC = () => {
 
     setIsSavingProfile(true);
     try {
-      const { data: existingProfile, error: readError } = await supabase
-        .from('profiles')
-        .select('payment_info')
-        .eq('id', authUserId)
-        .single();
-
-      if (readError) throw readError;
-
-      const nextPaymentInfo = {
-        ...(existingProfile?.payment_info || {}),
-        preferred_currency: payload.preferredCurrency
+      const richUpdate = {
+        username: payload.username,
+        full_name: payload.fullName,
+        avatar_url: payload.avatarUrl,
+        payment_info: { preferred_currency: payload.preferredCurrency }
       };
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          username: payload.username,
-          full_name: payload.fullName,
-          avatar_url: payload.avatarUrl,
-          payment_info: nextPaymentInfo
-        })
-        .eq('id', authUserId);
+      let { error } = await withTimeout(
+        (async () => await supabase
+          .from('profiles')
+          .update(richUpdate)
+          .eq('id', authUserId))(),
+        12000,
+        'Profile save timed out. Please try again.'
+      );
+
+      if (error && /column .* does not exist|full_name|avatar_url|payment_info/i.test(error.message || '')) {
+        const fallback = await withTimeout(
+          (async () => await supabase
+            .from('profiles')
+            .update({ username: payload.username })
+            .eq('id', authUserId))(),
+          12000,
+          'Profile save timed out. Please try again.'
+        );
+        error = fallback.error;
+      }
 
       if (error) throw error;
 
