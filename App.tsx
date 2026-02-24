@@ -18,6 +18,8 @@ import { PayMongoCheckoutModal } from './src/components/modals/PayMongoCheckoutM
 import { CategoryType, Product, User, CartItem, Visit, Customer, Lead, LeadReason } from './types';
 import { supabase, signInWithGoogle } from './src/supabaseClient';
 
+const ADMIN_EMAIL_ALLOWLIST = new Set(['digitalmerch4862@gmail.com']);
+
 const App: React.FC = () => {
   // --- STATE ---
   const [user, setUser] = useState<User>(() => {
@@ -225,6 +227,8 @@ const App: React.FC = () => {
 
       setAuthUserId(session.user.id);
 
+      const sessionEmail = (session.user.email || '').toLowerCase();
+      const isAllowlistedAdmin = ADMIN_EMAIL_ALLOWLIST.has(sessionEmail);
       const fallbackUsername = session.user.email?.split('@')[0] || 'User';
       let profile: any = null;
 
@@ -241,7 +245,7 @@ const App: React.FC = () => {
             id: session.user.id,
             email: session.user.email,
             username: fallbackUsername,
-            role: 'user'
+            role: isAllowlistedAdmin ? 'admin' : 'user'
           })
           .select('*')
           .single();
@@ -250,11 +254,26 @@ const App: React.FC = () => {
         profile = existingProfile;
       }
 
+      if (isAllowlistedAdmin && profile?.role !== 'admin') {
+        const { data: promotedProfile, error: promoteError } = await supabase
+          .from('profiles')
+          .update({ role: 'admin' })
+          .eq('id', session.user.id)
+          .select('*')
+          .single();
+
+        if (!promoteError && promotedProfile) {
+          profile = promotedProfile;
+        } else {
+          console.error('Admin promotion failed:', promoteError);
+        }
+      }
+
       setUser({
         username: profile?.username || session.user.email || 'User',
         fullName: profile?.full_name || '',
         avatarUrl: profile?.avatar_url || '',
-        isAdmin: profile?.role === 'admin',
+        isAdmin: profile?.role === 'admin' || isAllowlistedAdmin,
         isLoggedIn: true
       });
 
